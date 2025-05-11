@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>DrawQuick - לוח ציור</title>
+  <style>
+    body {
+      direction: rtl;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 20px;
+    }
+
+    canvas {
+      border: 2px solid #333;
+      background-color: #fff;
+      display: block;
+      margin: 0 auto;
+      cursor: crosshair;
+    }
+
+    .controls {
+      margin-top: 15px;
+    }
+
+    .controls input,
+    .controls button {
+      font-size: 16px;
+      margin: 5px;
+      padding: 6px 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 DrawQuick - לוח ציור</h1>
+  <canvas id="canvas" width="800" height="500"></canvas>
+
+  <div class="controls">
+    <input type="color" id="colorPicker" value="#000000">
+    <input type="range" id="brushSize" min="1" max="30" value="5">
+    <button id="clearBtn">נקה 🧽</button>
+    <button id="saveBtn">שמור 💾</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let painting = false;
+
+    function startPosition(e) {
+      painting = true;
+      draw(e);
+    }
+
+    function endPosition() {
+      painting = false;
+      ctx.beginPath();
+    }
+
+    function draw(e) {
+      if (!painting) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.lineWidth = document.getElementById('brushSize').value;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = document.getElementById('colorPicker').value;
+
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    canvas.addEventListener('mousedown', startPosition);
+    canvas.addEventListener('mouseup', endPosition);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseleave', endPosition);
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'my_drawing.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>
